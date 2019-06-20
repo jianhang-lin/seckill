@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import work.jianhang.seckill.controller.viewobject.UserVO;
+import work.jianhang.seckill.response.CommonReturnType;
 import work.jianhang.seckill.service.UserService;
 import work.jianhang.seckill.service.model.UserModel;
 
@@ -15,11 +16,13 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/get")
-    public UserVO getUser(@RequestParam(name = "id") Integer id) {
+    public CommonReturnType getUser(@RequestParam(name = "id") Integer id) {
         // 调用service服务获取对应id的用户对象并返回给前端
         UserModel userModel = userService.getUserById(id);
         //将核心领域模型用户对象转化为可供ui使用的viewobject
-        return convertFromModel(userModel);
+        UserVO userVO = convertFromModel(userModel);
+        // 返回通用对象
+        return CommonReturnType.create(userVO);
     }
 
     private UserVO convertFromModel(UserModel userModel) {
