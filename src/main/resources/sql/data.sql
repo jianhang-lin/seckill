@@ -1,4 +1,5 @@
 -- auto-generated definition
+-- auto-generated definition
 create table user_info
 (
     id             int auto_increment comment '用户id'
@@ -8,7 +9,8 @@ create table user_info
     age            int         default 0  not null comment '年龄',
     telphone       varchar(16) default '' not null comment '电话号码',
     register_mode  varchar(32) default '' not null comment '通过手机号、微信、淘宝注册',
-    third_party_id varchar(64) default '' not null comment '第三方账号id'
+    third_party_id varchar(64) default '' not null comment '第三方账号id',
+    UNIQUE KEY 'telphone_unique_index' ('telphone') USING BTREE
 )
     comment '用户信息表';
 -- auto-generated definition

@@ -2,6 +2,7 @@ package work.jianhang.seckill.service.impl;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -66,7 +67,11 @@ public class UserServiceImpl implements UserService {
 
         // 实现model->dataobject方法
         UserDO userDO = convertFromModel(userModel);
-        userDOMapper.insertSelective(userDO);
+        try {
+            userDOMapper.insertSelective(userDO);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "手机号已重复注册!");
+        }
 
         userModel.setId(userDO.getId());
 
