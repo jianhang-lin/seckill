@@ -5,6 +5,7 @@ import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.BASE64Encoder;
 import work.jianhang.seckill.controller.viewobject.UserVO;
 import work.jianhang.seckill.error.BusinessException;
 import work.jianhang.seckill.error.EmBusinessError;
@@ -13,13 +14,16 @@ import work.jianhang.seckill.service.UserService;
 import work.jianhang.seckill.service.model.UserModel;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.Random;
 
 @RestController
 @RequestMapping("/user")
 @Slf4j
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true", allowedHeaders = "*")
 public class UserController extends BaseController {
 
     @Autowired
@@ -79,7 +83,7 @@ public class UserController extends BaseController {
                                      @RequestParam(name = "name") String name,
                                      @RequestParam(name = "gender") Byte gender,
                                      @RequestParam(name = "age") Integer age,
-                                     @RequestParam(name = "password") String password) throws BusinessException {
+                                     @RequestParam(name = "password") String password) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
         // 验证手机号和对应的optCode相符合
         String inSessionOptCode = (String) this.httpServletRequest.getSession().getAttribute(telphone);
         if (!Objects.equals(otpCode, inSessionOptCode)) {
@@ -92,9 +96,18 @@ public class UserController extends BaseController {
         userModel.setAge(age);
         userModel.setTelphone(telphone);
         userModel.setRegisterMode("byphone");
-        userModel.setEncrptPassword(MD5Encoder.encode(password.getBytes()));
+        userModel.setEncrptPassword(this.encodeByMd5(password));
 
         userService.register(userModel);
         return CommonReturnType.create(null);
+    }
+
+    private String encodeByMd5(String str) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        // 确定计算方法
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        BASE64Encoder base64Encoder = new BASE64Encoder();
+        // 加密字符串
+        String newStr = base64Encoder.encode(md5.digest(str.getBytes("utf-8")));
+        return newStr;
     }
 }
