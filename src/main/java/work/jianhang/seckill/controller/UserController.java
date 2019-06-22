@@ -1,9 +1,9 @@
 package work.jianhang.seckill.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import sun.misc.BASE64Encoder;
 import work.jianhang.seckill.controller.viewobject.UserVO;
@@ -109,5 +109,24 @@ public class UserController extends BaseController {
         // 加密字符串
         String newStr = base64Encoder.encode(md5.digest(str.getBytes("utf-8")));
         return newStr;
+    }
+
+    // 用户登录接口
+    @RequestMapping(value = "/login", method = {RequestMethod.POST}, consumes = {CONTENT_TYPE_FORMED})
+    @ResponseBody
+    public CommonReturnType login(@RequestParam(name = "telphone") String telphone,
+                                  @RequestParam(name = "password") String password) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
+        // 入参校验
+        if (StringUtils.isEmpty(telphone) || StringUtils.isEmpty(password)) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+        }
+
+        // 用户登录服务，用来校验用户登录是否合法
+        UserModel userModel = userService.validateLogin(telphone, this.encodeByMd5(password));
+
+        // 将登录凭证加入到用户登录成功的session内
+        this.httpServletRequest.getSession().setAttribute("IS_LOGIN", true);
+        this.httpServletRequest.getSession().setAttribute("LOGIN_USER", userModel);
+        return CommonReturnType.create(null);
     }
 }
