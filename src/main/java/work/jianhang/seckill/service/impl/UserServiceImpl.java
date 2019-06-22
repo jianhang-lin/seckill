@@ -3,10 +3,14 @@ package work.jianhang.seckill.service.impl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import work.jianhang.seckill.dao.UserDOMapper;
 import work.jianhang.seckill.dao.UserPasswordDOMapper;
 import work.jianhang.seckill.dataobject.UserDO;
 import work.jianhang.seckill.dataobject.UserPasswordDO;
+import work.jianhang.seckill.error.BusinessException;
+import work.jianhang.seckill.error.EmBusinessError;
 import work.jianhang.seckill.service.UserService;
 import work.jianhang.seckill.service.model.UserModel;
 
@@ -46,4 +50,47 @@ public class UserServiceImpl implements UserService {
 
         return userModel;
     }
+
+    @Override
+    @Transactional
+    public void register(UserModel userModel) throws BusinessException {
+        if (userModel == null) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+        }
+        if (StringUtils.isEmpty(userModel.getName())
+                || userModel.getGender() == null
+                || userModel.getAge() == null
+                || StringUtils.isEmpty(userModel.getTelphone())) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+        }
+
+        // 实现model->dataobject方法
+        UserDO userDO = convertFromModel(userModel);
+        userDOMapper.insertSelective(userDO);
+
+        UserPasswordDO userPasswordDO = convertPasswordFromModel(userModel);
+        userPasswordDOMapper.insertSelective(userPasswordDO);
+
+        return;
+    }
+
+    private UserDO convertFromModel(UserModel userModel) {
+        if (userModel == null) {
+            return null;
+        }
+        UserDO userDO = new UserDO();
+        BeanUtils.copyProperties(userModel, userDO);
+        return userDO;
+    }
+
+    private UserPasswordDO convertPasswordFromModel(UserModel userModel) {
+        if (userModel == null) {
+            return null;
+        }
+        UserPasswordDO userPasswordDO = new UserPasswordDO();
+        userPasswordDO.setEncrptPassword(userModel.getEncrptPassword());
+        userPasswordDO.setUserId(userModel.getId());
+        return userPasswordDO;
+    }
+
 }

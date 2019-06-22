@@ -1,6 +1,7 @@
 package work.jianhang.seckill.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import work.jianhang.seckill.service.UserService;
 import work.jianhang.seckill.service.model.UserModel;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 import java.util.Random;
 
 @RestController
@@ -69,4 +71,30 @@ public class UserController extends BaseController {
         return CommonReturnType.create(null);
     }
 
+    // 用户注册接口
+    @RequestMapping(value = "/register", method = {RequestMethod.POST}, consumes = {CONTENT_TYPE_FORMED})
+    @ResponseBody
+    public CommonReturnType register(@RequestParam(name = "telphone") String telphone,
+                                     @RequestParam(name = "otpCode") String otpCode,
+                                     @RequestParam(name = "name") String name,
+                                     @RequestParam(name = "gender") Byte gender,
+                                     @RequestParam(name = "age") Integer age,
+                                     @RequestParam(name = "password") String password) throws BusinessException {
+        // 验证手机号和对应的optCode相符合
+        String inSessionOptCode = (String) this.httpServletRequest.getSession().getAttribute(telphone);
+        if (!Objects.equals(otpCode, inSessionOptCode)) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "短信验证码不符合");
+        }
+        // 用户的注册流程
+        UserModel userModel = new UserModel();
+        userModel.setName(name);
+        userModel.setGender(gender);
+        userModel.setAge(age);
+        userModel.setTelphone(telphone);
+        userModel.setRegisterMode("byphone");
+        userModel.setEncrptPassword(MD5Encoder.encode(password.getBytes()));
+
+        userService.register(userModel);
+        return CommonReturnType.create(null);
+    }
 }
