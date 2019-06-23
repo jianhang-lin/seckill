@@ -11,6 +11,8 @@ import work.jianhang.seckill.service.ItemService;
 import work.jianhang.seckill.service.model.ItemModel;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/item")
@@ -58,5 +60,18 @@ public class ItemController extends BaseController {
         ItemModel itemModel = itemService.getItemById(id);
         ItemVO itemVO = this.convertVOFromModel(itemModel);
         return CommonReturnType.create(itemVO);
+    }
+
+    // 商品列表页面浏览
+    @GetMapping(value = "/list")
+    @ResponseBody
+    public CommonReturnType listItem() {
+        List<ItemModel> itemModelList = itemService.listItem();
+
+        List<ItemVO> itemVOList = itemModelList.stream().map(itemModel -> {
+            ItemVO itemVO = this.convertVOFromModel(itemModel);
+            return itemVO;
+        }).collect(Collectors.toList());
+        return CommonReturnType.create(itemVOList);
     }
 }
