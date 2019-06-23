@@ -22,3 +22,26 @@ create table user_password
     user_id         int          default 0  not null comment '用户id'
 )
     comment '用户密码表';
+
+-- auto-generated definition
+create table item
+(
+    id          int auto_increment comment '商品id'
+        primary key,
+    title       varchar(64)  default '' not null comment '商品名称',
+    price       double       default 0  not null comment '商品价格',
+    description varchar(512) default '' not null comment '商品描述',
+    sales       int          default 0  not null comment '商品销量',
+    img_url     varchar(512) default '' not null comment '商品描述图片url'
+)
+    comment '商品表';
+
+-- auto-generated definition
+create table item_stock
+(
+    id      int auto_increment comment '商品库存id'
+        primary key,
+    stock   int default 0 not null comment '商品库存',
+    item_id int default 0 not null comment '商品id'
+)
+    comment '商品库存表';
