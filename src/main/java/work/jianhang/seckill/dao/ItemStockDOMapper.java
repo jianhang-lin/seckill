@@ -1,5 +1,6 @@
 package work.jianhang.seckill.dao;
 
+import org.apache.ibatis.annotations.Param;
 import work.jianhang.seckill.dataobject.ItemStockDO;
 
 public interface ItemStockDOMapper {
@@ -52,4 +53,6 @@ public interface ItemStockDOMapper {
      * @mbg.generated Sun Jun 23 11:15:50 CST 2019
      */
     int updateByPrimaryKey(ItemStockDO record);
+
+    int decreaseStock(@Param("itemId") Integer itemId, @Param("amount") Integer amount);
 }

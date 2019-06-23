@@ -99,4 +99,17 @@ public class ItemServiceImpl implements ItemService {
         itemModel.setStock(itemStockDO.getStock());
         return itemModel;
     }
+
+    @Override
+    @Transactional
+    public boolean decreaseStock(Integer itemId, Integer amount) throws BusinessException {
+        int affectedRow = itemStockDOMapper.decreaseStock(itemId, amount);
+        if (affectedRow > 0) {
+            // 更新库存成功
+            return true;
+        } else {
+            // 更新库存失败
+            return false;
+        }
+    }
 }
