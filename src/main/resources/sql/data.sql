@@ -45,3 +45,16 @@ create table item_stock
     item_id int default 0 not null comment '商品id'
 )
     comment '商品库存表';
+
+-- auto-generated definition
+create table order_info
+(
+    id          varchar(32) default '' not null comment '交易id'
+        primary key,
+    user_id     int         default 0  not null comment '用户id',
+    item_id     int         default 0  not null comment '商品id',
+    item_price  double      default 0  not null comment '商品单价',
+    amount      int         default 0  not null comment '购买数量',
+    order_price double      default 0  not null comment '购买金额'
+)
+    comment '交易表';
