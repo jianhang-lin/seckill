@@ -3,9 +3,12 @@ package work.jianhang.seckill.service.impl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import work.jianhang.seckill.dao.OrderDOMapper;
+import work.jianhang.seckill.dao.SequenceDOMapper;
 import work.jianhang.seckill.dataobject.OrderDO;
+import work.jianhang.seckill.dataobject.SequenceDO;
 import work.jianhang.seckill.error.BusinessException;
 import work.jianhang.seckill.error.EmBusinessError;
 import work.jianhang.seckill.service.ItemService;
@@ -30,6 +33,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderDOMapper orderDOMapper;
+
+    @Autowired
+    private SequenceDOMapper sequenceDOMapper;
 
     @Override
     @Transactional
@@ -61,11 +67,11 @@ public class OrderServiceImpl implements OrderService {
         orderModel.setItemPrice(itemModel.getPrice());
         orderModel.setOrderPrice(itemModel.getPrice().multiply(new BigDecimal(amount)));
 
+        orderModel.setId(generateOrderNo());
         OrderDO orderDO = convertFromOrderModel(orderModel);
         orderDOMapper.insertSelective(orderDO);
         // 4.返回前端
-
-        return null;
+        return orderModel;
     }
 
     private OrderDO convertFromOrderModel(OrderModel orderModel) {
@@ -77,7 +83,8 @@ public class OrderServiceImpl implements OrderService {
         return orderDO;
     }
 
-    private String generateOrderNo() {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    String generateOrderNo() {
         // 订单号有16位
         StringBuilder stringBuilder = new StringBuilder();
         // 前8位为时间信息，年月日
@@ -85,6 +92,16 @@ public class OrderServiceImpl implements OrderService {
         String nowDate = now.format(DateTimeFormatter.ISO_DATE).replace("-", "");
         stringBuilder.append(nowDate);
         // 中间6位为自增序列
+        int sequence = 0;
+        SequenceDO sequenceDO = sequenceDOMapper.getSequenceByName("order_info");
+        sequence = sequenceDO.getCurrentValue();
+        sequenceDO.setCurrentValue(sequenceDO.getCurrentValue() + sequenceDO.getStep());
+        sequenceDOMapper.updateByPrimaryKeySelective(sequenceDO);
+        String sequenceStr = String.valueOf(sequence);
+        for (int i = 0; i < 6-sequenceStr.length(); i++) {
+            stringBuilder.append(0);
+        }
+        stringBuilder.append(sequenceStr);
 
         //最后2位为分库分表位
         stringBuilder.append("00");

@@ -58,3 +58,15 @@ create table order_info
     order_price double      default 0  not null comment '购买金额'
 )
     comment '交易表';
+
+-- auto-generated definition
+create table sequence_info
+(
+    name          varchar(255)  not null comment 'sequence名字'
+        primary key,
+    current_value int default 0 not null comment '当前值',
+    step          int default 0 not null comment '步长'
+)
+    comment 'sequence表';
+
+INSERT INTO seckill.sequence_info (name, current_value, step) VALUES ('order_info', 0, 1);
