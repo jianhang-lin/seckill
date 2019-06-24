@@ -55,9 +55,10 @@ create table order_info
     item_id     int         default 0  not null comment '商品id',
     item_price  double      default 0  not null comment '商品单价',
     amount      int         default 0  not null comment '购买数量',
-    order_price double      default 0  not null comment '购买金额'
+    order_price double      default 0  not null comment '购买金额',
+    promo_id    int         default 0  not null comment '秒杀活动id'
 )
-    comment '交易表';
+    comment '交易信息表';
 
 -- auto-generated definition
 create table sequence_info
