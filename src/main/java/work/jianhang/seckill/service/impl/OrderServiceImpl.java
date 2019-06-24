@@ -16,6 +16,8 @@ import work.jianhang.seckill.service.model.OrderModel;
 import work.jianhang.seckill.service.model.UserModel;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -77,10 +79,15 @@ public class OrderServiceImpl implements OrderService {
 
     private String generateOrderNo() {
         // 订单号有16位
+        StringBuilder stringBuilder = new StringBuilder();
         // 前8位为时间信息，年月日
+        LocalDateTime now = LocalDateTime.now();
+        String nowDate = now.format(DateTimeFormatter.ISO_DATE).replace("-", "");
+        stringBuilder.append(nowDate);
         // 中间6位为自增序列
 
         //最后2位为分库分表位
-        return null;
+        stringBuilder.append("00");
+        return stringBuilder.toString();
     }
 }
