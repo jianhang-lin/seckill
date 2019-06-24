@@ -79,10 +79,9 @@ create table promo
     promo_name       varchar(255) default ''                    not null comment '秒杀活动名称',
     start_date       datetime     default '1970-01-01 08:00:01' not null comment '秒杀活动的开始时间',
     item_id          int          default 0                     not null comment '秒杀活动的适用商品',
-    promo_item_price double       default 0                     not null comment '秒杀活动的商品价格'
+    promo_item_price double       default 0                     not null comment '秒杀活动的商品价格',
+    end_date         datetime     default '1970-01-01 23:59:59' not null comment '秒杀活动的结束时间'
 )
     comment '秒杀活动';
 
-INSERT INTO seckill.promo (id, promo_name, start_date, item_id, promo_item_price) VALUES (1, 'iphone X抢购活动', '2019-06-25 09:55:59', 5, 4400);
-
-
+INSERT INTO seckill.promo (id, promo_name, start_date, item_id, promo_item_price, end_date) VALUES (1, 'iphone X抢购活动', '2019-06-25 09:55:59', 5, 4400, '2019-06-25 10:59:59');

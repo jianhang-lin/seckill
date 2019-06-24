@@ -11,7 +11,9 @@ import work.jianhang.seckill.dataobject.ItemStockDO;
 import work.jianhang.seckill.error.BusinessException;
 import work.jianhang.seckill.error.EmBusinessError;
 import work.jianhang.seckill.service.ItemService;
+import work.jianhang.seckill.service.PromoService;
 import work.jianhang.seckill.service.model.ItemModel;
+import work.jianhang.seckill.service.model.PromoModel;
 import work.jianhang.seckill.validator.ValidationResult;
 import work.jianhang.seckill.validator.ValidatorImpl;
 
@@ -30,6 +32,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private ItemStockDOMapper itemStockDOMapper;
+
+    @Autowired
+    private PromoService promoService;
 
     @Override
     @Transactional
@@ -89,6 +94,12 @@ public class ItemServiceImpl implements ItemService {
         }
         ItemStockDO itemStockDO = itemStockDOMapper.selectByItemId(itemDO.getId());
         ItemModel itemModel = convertModelFromDataObject(itemDO, itemStockDO);
+
+        //获取活动商品信息
+        PromoModel promoModel = promoService.getPromoByItemId(itemModel.getId());
+        if (promoModel != null && promoModel.getStatus() != 3) {
+            itemModel.setPromoModel(promoModel);
+        }
         return itemModel;
     }
 
