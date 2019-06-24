@@ -37,6 +37,6 @@ public class ItemVO {
     private Integer promoId;
 
     // 秒杀活动的开始时间
-    private DateTime startDate;
+    private String startDate;
 
 }
