@@ -64,7 +64,7 @@ public class ItemController extends BaseController {
     }
 
     // 商品详情页浏览
-    @GetMapping(value = "/get")
+    @RequestMapping(value = "/get", method = {RequestMethod.GET})
     @ResponseBody
     public CommonReturnType getItem(@RequestParam(name = "id") Integer id) {
         ItemModel itemModel = itemService.getItemById(id);
