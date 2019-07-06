@@ -80,10 +80,16 @@
         var g_itemVO = {};
         jQuery(document).ready(function () {
             $("#createOrder").on("click", function () {
+                var token = window.localStorage["token"];
+                if (token == null) {
+                    alert("没有登录，不能下单");
+                    window.location.href = "login.html";
+                    return false;
+                }
                 $.ajax({
                     type: "POST",
                     contentType: "application/x-www-form-urlencoded",
-                    url: "http://localhost:8080/order/create",
+                    url: "http://localhost:8080/order/create?token=" + token,
                     data: {
                         "itemId" : g_itemVO.id,
                         "amount" : 1,
