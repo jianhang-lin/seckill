@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import work.jianhang.seckill.controller.viewobject.ItemVO;
 import work.jianhang.seckill.error.BusinessException;
 import work.jianhang.seckill.response.CommonReturnType;
+import work.jianhang.seckill.service.CacheService;
 import work.jianhang.seckill.service.ItemService;
 import work.jianhang.seckill.service.model.ItemModel;
 
@@ -28,6 +29,9 @@ public class ItemController extends BaseController {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private CacheService cacheService;
 
     // 创建商品
     @RequestMapping(value = "/create", method = {RequestMethod.POST}, consumes = {CONTENT_TYPE_FORMED})
@@ -72,15 +76,24 @@ public class ItemController extends BaseController {
     @RequestMapping(value = "/get", method = {RequestMethod.GET})
     @ResponseBody
     public CommonReturnType getItem(@RequestParam(name = "id") Integer id) {
-        // 根据商品的id到redis内获取
-        ItemModel itemModel = (ItemModel) redisTemplate.opsForValue().get("item_" + id);
-        // 若redis内不存在对应的itemModel，则访问下游service
+        ItemModel itemModel = null;
+        // 先取本地缓存
+        itemModel = (ItemModel) cacheService.getFromCommonCache("item_" + id);
         if (itemModel == null) {
-            itemModel = itemService.getItemById(id);
-            // 设置itemModel到redis内
-            redisTemplate.opsForValue().set("item_" + id, itemModel);
-            redisTemplate.expire("item_" + id, 10, TimeUnit.MINUTES);
+            // 根据商品的id到redis内获取
+            itemModel = (ItemModel) redisTemplate.opsForValue().get("item_" + id);
+            // 若redis内不存在对应的itemModel，则访问下游service
+            if (itemModel == null) {
+                itemModel = itemService.getItemById(id);
+                // 设置itemModel到redis内
+                redisTemplate.opsForValue().set("item_" + id, itemModel);
+                redisTemplate.expire("item_" + id, 10, TimeUnit.MINUTES);
+            }
+
+            // 填充本地缓存
+            cacheService.setCommonCache("item_" + id, itemModel);
         }
+
         ItemVO itemVO = this.convertVOFromModel(itemModel);
         return CommonReturnType.create(itemVO);
     }
